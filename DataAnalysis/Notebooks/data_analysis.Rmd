@@ -1,8 +1,8 @@
 ---
-title: "DataAnalysis"
+title: "Data Analysis"
 author: "Pham Duc Thang"
 date: "2025-06-18"
-output: html_document
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
@@ -28,3 +28,128 @@ plot(pressure)
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+# **Step 0: Loading Packages**
+
+```{r}
+library(Hmisc)
+library(dplyr)
+library(tidyr)
+library(readxl)
+library(readr)
+library(ggplot2)
+```
+
+# Step 1: Read & Understanding Data
+
+To understand the data, we have to answer some questions
+
+1.  What is the shape of dataset? How many rows, how many cols?
+
+```{r}
+df <- read.csv("../data/data.csv")
+#dim(df)
+cat("The dimension of dataset: number of columns: ", ncol(df), "number of rows: ", nrow(df))
+
+```
+
+2.  What variables are categorical, numberical, datetime? To check the variable with double or numberic type is a categorical column or not, we need to check the distinct (unique) values
+
+```{r}
+df %>% 
+  count(y)
+```
+
+```{r}
+describe(df) #provide description for each column
+```
+
+```{r}
+str(df) #Structure the dataset
+```
+
+Conclusion: This data-set has 3 numerical variables \$x_1, x_2, x_3, 1 categorical variable `y` (because it has 2 values only 0 and 1)
+
+3.  Do we have any issues in this data-set?\
+    missing values?\
+    duplicate values?\
+    inconsistent types, values?
+
+```{r}
+sapply(df, class)
+class(df$y)
+```
+
+```{r}
+numerical_cols <- names(df)[sapply(df, is.numeric)]
+
+names(df) # list all columns of dataset
+col(names(df)) # same
+
+```
+
+```{r}
+# check missing values
+colSums(is.na(df))
+```
+
+Conclusion: There is no error(issue) in this data-set.
+
+# Step 2: Explore Dataset - EDA
+
+-   Univariate analysis
+
+    ```{r}
+
+    num_cols <- c("x", "x2", "x3")
+    num_cols
+
+    ```
+
+```{r}
+for (col in num_cols) {
+  vec <- df[[col]]
+  print(vec)
+  print(dim(vec))
+  print("====================")
+}
+```
+
+```{r}
+plot_and_save_numeric_cols <- function(df, outdir="../outputs/univariable") {
+  if (!dir.exists(paths = outdir)) {
+    dir.create(outdir, recursive = TRUE)
+  }
+  for(col in names(df)) {
+    if(is.numeric(df[[col]])) {
+      file_path <- file.path(outdir, paste0(col, "_hist_box.png"))
+      png(file_path, width=1000, height=500)
+      par(mfrow=c(1,2))
+      hist(df[[col]], main=paste("Historgram of", col), col="blue", border="black")
+      boxplot(df[[col]], main=paste("Boxplot of", col), horizontal = TRUE, col="pink")
+      dev.off()
+    }
+  }
+  print("All done!!!")
+}
+```
+
+```{r}
+plot_and_save_numeric_cols(df)
+```
+
+# Example 2: Using
+
+## Step 1: Read & Understand data,
+
+```{r}
+df_pen <- penguins
+```
+
+```{r}
+class(df_pen$year)
+```
+
+## Step 2 : EDA
+
+## Step 3 : Pre-process
